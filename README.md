@@ -1,4 +1,7 @@
 OpenRocket
+
+PID Controller is in RK4SimulationStepper. Change default unit to rad for angles.
+
 ==========
 [![Build Status](https://travis-ci.org/openrocket/openrocket.png) ](https://travis-ci.org/openrocket/openrocket)
 [![SourceSpy Dashboard](https://sourcespy.com/shield.svg)](https://sourcespy.com/github/openrocketopenrocket/)
