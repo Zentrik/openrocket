@@ -339,7 +339,43 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		double refArea = store.flightConditions.getRefArea();
 		double refLength = store.flightConditions.getRefLength();
 		
+		// Calculate the torques and forces from PID controller
+		
+		Coordinate c = status.getRocketOrientationQuaternion().rotateZ();
+		double theta = Math.atan2(c.z, MathUtil.hypot(c.x, c.y));
+		double phi = Math.atan2(c.y, c.x);
+		if (phi < -(Math.PI - 0.0001))
+			phi = Math.PI;
+		
+		double Pitchdot = store.flightConditions.getPitchRate();
+	 	double Yawdot = store.flightConditions.getYawRate();
+				 	
+	 	double P = 1;
+	 	double I = 0;
+	 	double D = 0;
+	 	
+		double PitchPID = -(P * status.getRocketOrientationQuaternion().getY() + D * Pitchdot);
+		double YawPID = -(P * status.getRocketOrientationQuaternion().getX() + D * Yawdot);
+		
+		double COTtoCOM = 0.5; // Distance from centre of thrust to centre of mass.
+		
+		// Enforce Actuator limit of max 5 degree tvc gimbal
+		double MaxTorque = store.thrustForce * Math.sin(Math.toRadians(5));
+		double Torque = Math.hypot(PitchPID, YawPID);
+		double k = MaxTorque / Torque;
 
+		if (Torque > MaxTorque) {
+			PitchPID = PitchPID * k;
+			YawPID = YawPID * k;
+		}	
+		
+		Coordinate Force = new Coordinate(-PitchPID / COTtoCOM / store.rocketMass.getMass(),
+				YawPID / COTtoCOM / store.rocketMass.getMass() ,
+				0);
+		
+		Coordinate TorquePID = new Coordinate(YawPID / store.rocketMass.getLongitudinalInertia(),
+				PitchPID / store.rocketMass.getLongitudinalInertia() ,
+				0);
 		// Linear forces in rocket coordinates
 		store.dragForce = store.forces.getCaxial() * dynP * refArea;
 		double fN = store.forces.getCN() * dynP * refArea;
@@ -353,6 +389,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 		
 		store.linearAcceleration = store.thetaRotation.rotateZ(store.linearAcceleration);
 		
+		store.linearAcceleration.add(Force);
 		// Convert into rocket world coordinates
 		store.linearAcceleration = status.getRocketOrientationQuaternion().rotate(store.linearAcceleration);
 		
@@ -398,6 +435,7 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			
 			store.angularAcceleration = store.thetaRotation.rotateZ(store.angularAcceleration);
 			
+			store.angularAcceleration.add(TorquePID);
 			// Convert to world coordinates
 			store.angularAcceleration = status.getRocketOrientationQuaternion().rotate(store.angularAcceleration);
 			
@@ -670,8 +708,8 @@ public class RK4SimulationStepper extends AbstractSimulationStepper {
 			double phi = Math.atan2(c.y, c.x);
 			if (phi < -(Math.PI - 0.0001))
 				phi = Math.PI;
-			data.setValue(FlightDataType.TYPE_ORIENTATION_THETA, theta);
-			data.setValue(FlightDataType.TYPE_ORIENTATION_PHI, phi);
+			data.setValue(FlightDataType.TYPE_ORIENTATION_THETA, status.getRocketOrientationQuaternion().getX());
+			data.setValue(FlightDataType.TYPE_ORIENTATION_PHI, status.getRocketOrientationQuaternion().getY());
 		}
 		
 		data.setValue(FlightDataType.TYPE_WIND_VELOCITY, store.windSpeed);

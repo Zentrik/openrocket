@@ -166,7 +166,7 @@ public class BasicEventSimulationEngine implements SimulationEngine {
 						currentStatus.setRocketVelocity(originVelocity);
 					}
 					// Detect lift-off
-					if (relativePosition.z > 0.02) {
+					if (relativePosition.z > 0.000002) {
 						addEvent(new FlightEvent(FlightEvent.Type.LIFTOFF, currentStatus.getSimulationTime()));
 					}
 					
