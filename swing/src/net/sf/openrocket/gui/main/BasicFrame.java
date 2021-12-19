@@ -60,6 +60,7 @@ import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 import net.sf.openrocket.rocketcomponent.AxialStage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,7 +221,7 @@ public class BasicFrame extends JFrame {
 
 		//  Bottom segment, rocket figure
 
-		rocketpanel = new RocketPanel(document);
+		rocketpanel = new RocketPanel(document, this);
 		vertical.setBottomComponent(rocketpanel);
 
 		rocketpanel.setSelectionModel(tree.getSelectionModel());
@@ -350,16 +351,16 @@ public class BasicFrame extends JFrame {
 
 
 		// Buttons
-		JButton button = new JButton(actions.getMoveUpAction());
+		JButton button = new SelectColorButton(actions.getMoveUpAction());
 		panel.add(button, "sizegroup buttons, aligny 65%");
 
-		button = new JButton(actions.getMoveDownAction());
+		button = new SelectColorButton(actions.getMoveDownAction());
 		panel.add(button, "sizegroup buttons, aligny 0%");
 
-		button = new JButton(actions.getEditAction());
+		button = new SelectColorButton(actions.getEditAction());
 		panel.add(button, "sizegroup buttons");
 
-		button = new JButton(actions.getDeleteAction());
+		button = new SelectColorButton(actions.getDeleteAction());
 		button.setIcon(null);
 		button.setMnemonic(0);
 		panel.add(button, "sizegroup buttons");
@@ -715,7 +716,11 @@ public class BasicFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				log.info(Markers.USER_MARKER, "Rocket optimization selected");
-				new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
+				try {
+					new GeneralOptimizationDialog(document, BasicFrame.this).setVisible(true);
+				} catch (InterruptedException ex) {
+					log.warn(ex.getMessage());
+				}
 			}
 		});
 		menu.add(item);
@@ -1098,6 +1103,9 @@ public class BasicFrame extends JFrame {
 		tabbedPane.setSelectedIndex(tab);
 	}
 
+	public int getSelectedTab() {
+		return tabbedPane.getSelectedIndex();
+	}
 
 
 	private void openAction() {
@@ -1408,9 +1416,6 @@ public class BasicFrame extends JFrame {
 			if ( sel == 1  ) {
 				return false;
 			}
-		}
-		if (!FileHelper.confirmWrite(file, this)) {
-			return false;
 		}
 
 		try {

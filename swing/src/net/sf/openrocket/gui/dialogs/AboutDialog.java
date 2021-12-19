@@ -20,6 +20,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.util.BuildProperties;
 import net.sf.openrocket.util.Chars;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class AboutDialog extends JDialog {
@@ -39,7 +40,7 @@ public class AboutDialog extends JDialog {
 			"Daniel Williams (pod support, maintainer)<br>" +
 			"Joe Pfeiffer (maintainer)<br>" +
 			"Billy Olsen (maintainer)<br>" +
-			"Neil Weinstock (tester, forum support)<br>" +
+			"Neil Weinstock (tester, icons, forum support)<br>" +
 			"H. Craig Miller (tester)<br><br>" +
 			"<b>Translations by:</b><br><br>" +
 			"Tripoli France (French)<br>" +
@@ -48,7 +49,8 @@ public class AboutDialog extends JDialog {
 			"Sky Dart Team (Russian)<br>" +
 			"Mauro Biasutti (Italian)<br>" +
 			"Vladimir Beran (Czech)<br>" +
-			"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br><br>" +
+			"Polish Rocketry Society / \u0141ukasz & Alex Kazanski (Polish)<br>" +
+			"Sibo Van Gool (Dutch)<br><br>" +
 			"See all contributors at <br>https://github.com/openrocket/openrocket/graphs/contributors<br><br>" +
 			"<b>OpenRocket utilizes the following libraries:</b><br><br>" +
 			"MiG Layout (http://www.miglayout.com/)<br>" +
@@ -124,7 +126,7 @@ public class AboutDialog extends JDialog {
 		
 		
 		//Close button
-		JButton close = new JButton(trans.get("button.close"));
+		JButton close = new SelectColorButton(trans.get("button.close"));
 		close.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

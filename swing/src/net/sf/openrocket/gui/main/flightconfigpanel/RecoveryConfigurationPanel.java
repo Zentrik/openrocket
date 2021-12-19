@@ -20,6 +20,7 @@ import net.sf.openrocket.rocketcomponent.*;
 import net.sf.openrocket.rocketcomponent.DeploymentConfiguration.DeployEvent;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 public class RecoveryConfigurationPanel extends FlightConfigurablePanel<RecoveryDevice> {
 
@@ -38,7 +39,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		this.add(scroll, "span, grow, wrap");
 
 		//// Select deployment
-		selectDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Selectdeployment"));
+		selectDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Selectdeployment"));
 		selectDeploymentButton.setEnabled(false);
 		selectDeploymentButton.addActionListener(new ActionListener() {
 			@Override
@@ -49,7 +50,7 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 		this.add(selectDeploymentButton, "split, align right, sizegroup button");
 
 		//// Reset deployment
-		resetDeploymentButton = new JButton(trans.get("edtmotorconfdlg.but.Resetdeployment"));
+		resetDeploymentButton = new SelectColorButton(trans.get("edtmotorconfdlg.but.Resetdeployment"));
 		resetDeploymentButton.setEnabled(false);
 		resetDeploymentButton.addActionListener(new ActionListener() {
 			@Override
@@ -98,22 +99,31 @@ public class RecoveryConfigurationPanel extends FlightConfigurablePanel<Recovery
 
 	private void selectDeployment() {
 		RecoveryDevice c = getSelectedComponent();
-		if (c == null) {
+		FlightConfigurationId fcid = getSelectedConfigurationId();
+		if ((c == null) || (fcid == null)) {
 			return;
 		}
+		DeploymentConfiguration initialConfig = c.getDeploymentConfigurations().get(fcid).copy(fcid);
 		JDialog d = new DeploymentSelectionDialog(SwingUtilities.getWindowAncestor(this), rocket, c);
 		d.setVisible(true);
-		fireTableDataChanged();
+		if (!initialConfig.equals(c.getDeploymentConfigurations().get(fcid))) {
+			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
+
 	}
 
 	private void resetDeployment() {
 		RecoveryDevice c = getSelectedComponent();
-		if (c == null) {
+		FlightConfigurationId fcid = getSelectedConfigurationId();
+		if ((c == null) || (fcid == null)) {
 			return;
 		}
+		DeploymentConfiguration initialConfig = c.getDeploymentConfigurations().get(fcid).copy(fcid);
 		FlightConfigurationId id = rocket.getSelectedConfiguration().getFlightConfigurationID();
 		c.getDeploymentConfigurations().reset(id);
-		fireTableDataChanged();
+		if (!initialConfig.equals(c.getDeploymentConfigurations().get(fcid))) {
+			fireTableDataChanged(ComponentChangeEvent.AERODYNAMIC_CHANGE);
+		}
 	}
 
 	public void updateButtonState() {

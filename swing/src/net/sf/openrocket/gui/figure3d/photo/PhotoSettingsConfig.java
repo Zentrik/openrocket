@@ -46,6 +46,7 @@ import net.sf.openrocket.l10n.Translator;
 import net.sf.openrocket.startup.Application;
 import net.sf.openrocket.unit.UnitGroup;
 import net.sf.openrocket.util.StateChangeListener;
+import net.sf.openrocket.gui.widgets.SelectColorButton;
 
 @SuppressWarnings("serial")
 public class PhotoSettingsConfig extends JTabbedPane {
@@ -124,21 +125,21 @@ public class PhotoSettingsConfig extends JTabbedPane {
 		}
 	}
 
-	public PhotoSettingsConfig(final PhotoSettings p) {
+	public PhotoSettingsConfig(PhotoSettings p) {
 		super();
 
 		setPreferredSize(new Dimension(240, 320));
 
-		final JButton sunLightColorButton = new JButton();
+		final JButton sunLightColorButton = new SelectColorButton();
 		sunLightColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton skyColorButton = new JButton();
+		final JButton skyColorButton = new SelectColorButton();
 		skyColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton smokeColorButton = new JButton();
+		final JButton smokeColorButton = new SelectColorButton();
 		smokeColorButton.setMaximumSize(new Dimension(35, 25));
 
-		final JButton flameColorButton = new JButton();
+		final JButton flameColorButton = new SelectColorButton();
 		flameColorButton.setMaximumSize(new Dimension(35, 25));
 
 		p.addChangeListener(new StateChangeListener() {
@@ -266,7 +267,12 @@ public class PhotoSettingsConfig extends JTabbedPane {
 							}
 						});
 
-						setSelectedItem(p.getSky());
+						if (p.getSky() != null) {
+							setSelectedItem(p.getSky());
+						}
+						else {
+							setSelectedItem(noSky);
+						}
 					}
 				}, "wrap");
 
@@ -311,8 +317,8 @@ public class PhotoSettingsConfig extends JTabbedPane {
 				smokeModel.addEnableComponent(smokeColorButton);
 
 				add(new JLabel(trans.get("PhotoSettingsConfig.lbl.smokeOpacity")));
-				DoubleModel smokeAlphaModel = new DoubleModel(p, "SmokeAlpha", 100, UnitGroup.UNITS_NONE, 0, 100);
-				EditableSpinner opacitySpinner = new EditableSpinner(smokeAlphaModel.getSpinnerModel());
+				DoubleModel smokeOpacityModel = new DoubleModel(p, "SmokeOpacity", 100, UnitGroup.UNITS_NONE, 0, 100);
+				EditableSpinner opacitySpinner = new EditableSpinner(smokeOpacityModel.getSpinnerModel());
 				add(opacitySpinner, "wrap");
 				smokeModel.addEnableComponent(opacitySpinner);
 

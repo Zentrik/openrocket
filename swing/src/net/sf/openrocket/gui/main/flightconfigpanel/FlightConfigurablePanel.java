@@ -54,10 +54,14 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 		synchronizeConfigurationSelection();
 	}
 
-	public void fireTableDataChanged() {
+	/**
+	 * Update the data in the table, with component change event type {cce}
+	 * @param cce index of the ComponentChangeEvent to use (e.g. ComponentChangeEvent.NONFUNCTIONAL_CHANGE)
+	 */
+	public void fireTableDataChanged(int cce) {
 		int selectedRow = table.getSelectedRow();
 		int selectedColumn = table.getSelectedColumn();
-		this.rocket.fireComponentChangeEvent(ComponentChangeEvent.NONFUNCTIONAL_CHANGE);
+		this.rocket.fireComponentChangeEvent(cce);
 		((AbstractTableModel)table.getModel()).fireTableDataChanged();
 		restoreSelection(selectedRow,selectedColumn);
 		updateButtonState();
@@ -211,7 +215,7 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 				log.warn("Detected null newValue to render... (oldValue: "+oldValue+")");
 				newValue = oldValue;
 			}
-			
+
 		    column = table.convertColumnIndexToModel(column);
 			switch (column) {
 			case 0: {
@@ -229,6 +233,11 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 					T component = v.getV();
 					label = format(component, fcid, label );
 				}
+				for (Component c : label.getComponents()) {
+					if (c instanceof JLabel) {
+						setSelected((JLabel)c, table, isSelected, hasFocus);
+					}
+				}
 				setSelected(label, table, isSelected, hasFocus);
 				return label;
 			}
@@ -239,8 +248,10 @@ public abstract class FlightConfigurablePanel<T extends FlightConfigurableCompon
 			c.setOpaque(true);
 			if ( isSelected) {
 				c.setBackground(table.getSelectionBackground());
+				c.setForeground((Color)UIManager.get("Table.selectionForeground"));
 			} else {
 				c.setBackground(table.getBackground());
+				c.setForeground(c.getForeground());
 			}
 			Border b = null;
 			if ( hasFocus ) {
